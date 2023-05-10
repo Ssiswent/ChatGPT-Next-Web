@@ -7,6 +7,7 @@ import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import CopyIcon from "../icons/copy.svg";
 import ClearIcon from "../icons/clear.svg";
+import LoadingIcon from "../icons/three-dots.svg";
 import EditIcon from "../icons/edit.svg";
 import EyeIcon from "../icons/eye.svg";
 import { Input, List, ListItem, Modal, PasswordInput, Popover } from "./ui-lib";
@@ -340,7 +341,7 @@ export function Settings() {
               </div>
             </Popover>
           </ListItem>
-
+          
           <ListItem title={Locale.Settings.SendKey}>
             <select
               value={config.submitKey}
