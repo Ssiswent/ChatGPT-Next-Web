@@ -40,7 +40,7 @@ import Locale, {
 } from "../locales";
 import { copyToClipboard } from "../utils";
 import Link from "next/link";
-import { Path, UPDATE_URL } from "../constant";
+import { Path, RELEASE_URL, UPDATE_URL } from "../constant";
 import { Prompt, SearchService, usePromptStore } from "../store/prompt";
 import { ErrorBoundary } from "./error";
 import { InputRange } from "./input-range";
@@ -245,82 +245,6 @@ function SyncItems() {
   // not ready: https://github.com/Yidadaa/ChatGPT-Next-Web/issues/920#issuecomment-1609866332
   return null;
 
-  return (
-    <List>
-      <ListItem
-        title={"上次同步：" + new Date().toLocaleString()}
-        subTitle={"20 次对话，100 条消息，200 提示词，20 面具"}
-      >
-        <IconButton
-          icon={<ResetIcon />}
-          text="同步"
-          onClick={() => {
-            syncStore.check().then(console.log);
-          }}
-        />
-      </ListItem>
-
-      <ListItem
-        title={"本地备份"}
-        subTitle={"20 次对话，100 条消息，200 提示词，20 面具"}
-      ></ListItem>
-
-      <ListItem
-        title={"Web Dav Server"}
-        subTitle={Locale.Settings.AccessCode.SubTitle}
-      >
-        <input
-          value={webdav.server}
-          type="text"
-          placeholder={"https://example.com"}
-          onChange={(e) => {
-            syncStore.update(
-              (config) => (config.server = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-
-      <ListItem title="Web Dav User Name" subTitle="user name here">
-        <input
-          value={webdav.username}
-          type="text"
-          placeholder={"username"}
-          onChange={(e) => {
-            syncStore.update(
-              (config) => (config.username = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-
-      <ListItem title="Web Dav Password" subTitle="password here">
-        <input
-          value={webdav.password}
-          type="text"
-          placeholder={"password"}
-          onChange={(e) => {
-            syncStore.update(
-              (config) => (config.password = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-    </List>
-  );
-}
-
-function formatVersionDate(t: string) {
-  const d = new Date(+t);
-  const year = d.getUTCFullYear();
-  const month = d.getUTCMonth() + 1;
-  const day = d.getUTCDate();
-
-  return [
-    year.toString(),
-    month.toString().padStart(2, "0"),
-    day.toString().padStart(2, "0"),
-  ].join("");
 }
 
 export function Settings() {
@@ -332,9 +256,10 @@ export function Settings() {
 
   const updateStore = useUpdateStore();
   const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const currentVersion = formatVersionDate(updateStore.version);
-  const remoteId = formatVersionDate(updateStore.remoteVersion);
+  const currentVersion = updateStore.formatVersion(updateStore.version);
+  const remoteId = updateStore.formatVersion(updateStore.remoteVersion);
   const hasNewVersion = currentVersion !== remoteId;
+  const updateUrl = getClientConfig()?.isApp ? RELEASE_URL : UPDATE_URL;
 
   function checkUpdate(force = false) {
     setCheckingUpdate(true);
@@ -342,14 +267,8 @@ export function Settings() {
       setCheckingUpdate(false);
     });
 
-    console.log(
-      "[Update] local version ",
-      new Date(+updateStore.version).toLocaleString(),
-    );
-    console.log(
-      "[Update] remote version ",
-      new Date(+updateStore.remoteVersion).toLocaleString(),
-    );
+    console.log("[Update] local version ", updateStore.version);
+    console.log("[Update] remote version ", updateStore.remoteVersion);
   }
 
   const usage = {
@@ -446,7 +365,7 @@ export function Settings() {
               </div>
             </Popover>
           </ListItem>
-          
+
           <ListItem title={Locale.Settings.SendKey}>
             <Select
               value={config.submitKey}
